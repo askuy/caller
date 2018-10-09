@@ -1,9 +1,9 @@
 package gorm
 
 import (
+	"github.com/BurntSushi/toml"
 	"github.com/godefault/caller/common"
 	"github.com/jinzhu/gorm"
-	"github.com/BurntSushi/toml"
 	"log"
 )
 
@@ -11,7 +11,7 @@ var defaultCaller *callerStore
 
 type callerStore struct {
 	caller map[string]*GormClient
-	cfg  Cfg
+	cfg    Cfg
 }
 
 type GormClient struct {
@@ -46,7 +46,7 @@ func (c *callerStore) Set(key string, val interface{}) {
 }
 
 func (c *callerStore) initGorm() {
-	for name, gormCfg := range c.cfg.Gorm {
+	for name, gormCfg := range c.cfg.CallerGorm {
 		db, err := newGorm(gormCfg)
 		if err != nil {
 			if gormCfg.Level == "panic" {
@@ -56,7 +56,7 @@ func (c *callerStore) initGorm() {
 			}
 			continue
 		}
-		c.Set(name,db)
+		c.Set(name, db)
 	}
 }
 
@@ -68,7 +68,8 @@ func parseConfig(cfg []byte, value interface{}) error {
 	return nil
 }
 
-func newGorm(cfg GormCfg) (db *gorm.DB, err error) {
+func newGorm(cfg GormCfg) (resp *GormClient, err error) {
+	var db *gorm.DB
 	// dsn = "username:password@tcp(addr)/stt_config?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=1s"
 	db, err = gorm.Open(cfg.Dialect, cfg.Username+":"+cfg.Password+"@"+cfg.Network+"("+cfg.Addr+")/"+cfg.Db+
 		"?charset="+cfg.Charset+"&parseTime="+cfg.ParseTime+"&loc="+cfg.Loc+
@@ -85,5 +86,6 @@ func newGorm(cfg GormCfg) (db *gorm.DB, err error) {
 	if err != nil {
 		return
 	}
+	resp = &GormClient{db}
 	return
 }

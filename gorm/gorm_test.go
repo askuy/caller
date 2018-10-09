@@ -1,12 +1,12 @@
 package gorm
 
 import (
-	"testing"
 	. "github.com/smartystreets/goconvey/convey"
+	"testing"
 )
 
 var cfgSuccess = `
-    [gorm.default]
+    [callerGorm.default]
 		debug = true
         level = "panic"
         network = "tcp"
@@ -29,11 +29,11 @@ var cfgSuccess = `
 func TestParseConfig(t *testing.T) {
 	Convey("test parse config", t, func() {
 		obj := Cfg{}
-		err := parseConfig([]byte(cfgSuccess),&obj)
+		err := parseConfig([]byte(cfgSuccess), &obj)
 		So(err, ShouldBeNil)
 		Convey("解析出 gorm defalut 不能为空", func() {
-			roomConfig := obj.Gorm["default"]
-			So(roomConfig, ShouldNotBeNil)
+			_, ok := obj.CallerGorm["default"]
+			So(ok, ShouldBeTrue)
 		})
 	})
 }

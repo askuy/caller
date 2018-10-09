@@ -5,7 +5,7 @@ import (
 )
 
 type Cfg struct {
-	Gorm map[string]GormCfg
+	CallerGorm map[string]GormCfg
 }
 
 type GormCfg struct {
