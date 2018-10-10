@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 )
 
-func Init(cfg interface{}, callers ...common.Caller) error {
+func Init(cfg interface{}, callers ...common.CallerFunc) error {
 	var cfgByte []byte
 	var err error
 	switch cfg.(type) {
@@ -22,7 +22,9 @@ func Init(cfg interface{}, callers ...common.Caller) error {
 	}
 
 	for _, caller := range callers {
-		caller.InitCfg(cfgByte)
+		obj := caller()
+		obj.InitCfg(cfgByte)
+
 	}
 	return nil
 }

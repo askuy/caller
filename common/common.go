@@ -20,3 +20,5 @@ func (d *Duration) UnmarshalText(text []byte) error {
 	d.Duration, err = time.ParseDuration(string(text))
 	return err
 }
+
+type CallerFunc func() Caller

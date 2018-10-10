@@ -1,12 +1,12 @@
 package gorm
 
 import (
+	fmt "fmt"
 	"github.com/BurntSushi/toml"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/godefault/caller/common"
 	"github.com/jinzhu/gorm"
 	"log"
-	_ "github.com/go-sql-driver/mysql"
-	fmt "fmt"
 )
 
 var defaultCaller *callerStore

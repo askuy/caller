@@ -2,25 +2,25 @@ package ginsession
 
 import (
 	"github.com/BurntSushi/toml"
-	"github.com/godefault/caller/common"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
-	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/godefault/caller/common"
 )
 
 var defaultCaller *callerStore
 
 type callerStore struct {
-	caller redis.Store
+	caller gin.HandlerFunc
 	cfg    Cfg
 }
-
 
 func New() common.Caller {
 	defaultCaller = &callerStore{}
 	return defaultCaller
 }
 
-func Caller() redis.Store {
+func Caller() gin.HandlerFunc {
 	return defaultCaller.caller
 }
 
@@ -37,11 +37,11 @@ func (c *callerStore) Get(key string) interface{} {
 }
 
 func (c *callerStore) Set(key string, val interface{}) {
-	c.caller = val.(redis.Store)
+	c.caller = val.(gin.HandlerFunc)
 }
 
 func (c *callerStore) initCaller() {
-	caller,err := provider(c.cfg.CallerGinSession)
+	caller, err := provider(c.cfg.CallerGinSession)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -56,8 +56,9 @@ func parseConfig(cfg []byte, value interface{}) error {
 	return nil
 }
 
-func provider(cfg CallerCfg) (store redis.Store,err error) {
-	fmt.Println(cfg)
+func provider(cfg CallerCfg) (session gin.HandlerFunc, err error) {
+	var store redis.Store
 	store, err = redis.NewStore(cfg.Size, cfg.Network, cfg.Addr, cfg.Pwd, []byte(cfg.Keypairs))
+	session = sessions.Sessions(cfg.Name, store)
 	return
 }
