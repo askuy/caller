@@ -5,10 +5,10 @@ import (
 )
 
 type Cfg struct {
-	CallerGorm map[string]GormCfg
+	CallerGorm map[string]CallerCfg
 }
 
-type GormCfg struct {
+type CallerCfg struct {
 	Debug bool
 
 	Network      string

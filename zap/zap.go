@@ -36,7 +36,7 @@ func (c *callerStore) InitCfg(cfg []byte) error {
 	if err := parseConfig(cfg, &c.cfg); err != nil {
 		return err
 	}
-	c.initZaps()
+	c.initCaller()
 	return nil
 }
 
@@ -48,9 +48,9 @@ func (c *callerStore) Set(key string, val interface{}) {
 	c.caller[key] = val.(*ZapClient)
 }
 
-func (c *callerStore) initZaps() {
+func (c *callerStore) initCaller() {
 	for name, cfg := range c.cfg.CallerZap {
-		db := newZap(cfg)
+		db := provider(cfg)
 		c.Set(name, db)
 	}
 }
@@ -63,7 +63,7 @@ func parseConfig(cfg []byte, value interface{}) error {
 	return nil
 }
 
-func newZap(cfg ZapCfg) (db *ZapClient) {
+func provider(cfg CallerCfg) (db *ZapClient) {
 	var js string
 	if cfg.Debug {
 		js = fmt.Sprintf(`{

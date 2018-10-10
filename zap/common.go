@@ -1,10 +1,10 @@
 package zap
 
 type Cfg struct {
-	CallerZap map[string]ZapCfg
+	CallerZap map[string]CallerCfg
 }
 
-type ZapCfg struct {
+type CallerCfg struct {
 	Debug bool
 	Level string
 	Path  string
