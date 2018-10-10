@@ -5,6 +5,7 @@ type Cfg struct {
 }
 
 type CallerCfg struct {
+	Name     string
 	Size     int
 	Network  string
 	Addr     string
