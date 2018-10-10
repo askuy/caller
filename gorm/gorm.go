@@ -5,6 +5,8 @@ import (
 	"github.com/godefault/caller/common"
 	"github.com/jinzhu/gorm"
 	"log"
+	_ "github.com/go-sql-driver/mysql"
+	fmt "fmt"
 )
 
 var defaultCaller *callerStore
@@ -33,7 +35,7 @@ func (c *callerStore) InitCfg(cfg []byte) error {
 	if err := parseConfig(cfg, &c.cfg); err != nil {
 		return err
 	}
-	c.initGorm()
+	c.initCaller()
 	return nil
 }
 
@@ -45,9 +47,9 @@ func (c *callerStore) Set(key string, val interface{}) {
 	c.caller[key] = val.(*GormClient)
 }
 
-func (c *callerStore) initGorm() {
+func (c *callerStore) initCaller() {
 	for name, gormCfg := range c.cfg.CallerGorm {
-		db, err := newGorm(gormCfg)
+		db, err := provider(gormCfg)
 		if err != nil {
 			if gormCfg.Level == "panic" {
 				log.Panic("failed to connect mysql:" + ", error: " + err.Error())
@@ -68,7 +70,9 @@ func parseConfig(cfg []byte, value interface{}) error {
 	return nil
 }
 
-func newGorm(cfg GormCfg) (resp *GormClient, err error) {
+func provider(cfg CallerCfg) (resp *GormClient, err error) {
+	fmt.Println(cfg)
+
 	var db *gorm.DB
 	// dsn = "username:password@tcp(addr)/stt_config?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=1s"
 	db, err = gorm.Open(cfg.Dialect, cfg.Username+":"+cfg.Password+"@"+cfg.Network+"("+cfg.Addr+")/"+cfg.Db+
@@ -81,8 +85,8 @@ func newGorm(cfg GormCfg) (resp *GormClient, err error) {
 	db.DB().SetMaxOpenConns(cfg.MaxOpenConns)
 	db.DB().SetMaxIdleConns(cfg.MaxIdleConns)
 	db.DB().SetConnMaxLifetime(cfg.ConnMaxLifetime.Duration)
-
 	err = db.DB().Ping()
+
 	if err != nil {
 		return
 	}
